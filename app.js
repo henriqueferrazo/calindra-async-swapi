@@ -32,14 +32,16 @@ app.get('/:entity/:id', (req, res) => {
 
                     axios.get(responseDataValue[i])
                         .then((responseValueUrlApi) => {
-                            res.json(responseValueUrlApi.data);
-                            console.log(responseValueUrlApi.data);
+                            arrayResponse.push(responseValueUrlApi.data);
+                            console.log(arrayResponse)
                         }).catch((err) => {
                             console.log(err);
                          });
                     console.log(i)
-                }
 
+                }
+                
+                res.json(arrayResponse);
             }
         }).catch((erro) => {
             console.log(erro)
