@@ -16,6 +16,7 @@ const urlEntitiesFilms = {
 }
 
 
+
 app.get('/:entity/:id', (req, res) => {
     const { entity, id } = req.params;
     const enrichFields = req.query.enrichFields
