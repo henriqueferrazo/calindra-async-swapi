@@ -15,43 +15,54 @@ const urlEntitiesFilms = {
     species: "species"
 }
 
+const isArray = (fields) => {
+    return fields instanceof Array;
+}
 
+app.get('/:entyds/:id', async (req, res) => {
+    const { entyds, id } = req.params;
+    const enrichFields = isArray(req.query.enrichFields)
+                ?req.query.enrichFields : [req.query.enrichFields]
+    const urlResquest = `${url}/${entyds}/${id}`;
 
-app.get('/:entity/:id', (req, res) => {
-    const { entity, id } = req.params;
-    const enrichFields = req.query.enrichFields
-    const urlResquest = `${url}/${entity}/${id}/?enrichFields=${enrichFields}`;
+    const filmResponse = await axios.get(urlResquest);
 
-    axios.get(urlResquest)
-        .then((response) => {
-            let arrayResponse = [];
-            let responseDataValue = response.data[`${enrichFields}`]
+    if (filmResponse.status === 200) {
+        const film = filmResponse.data;
+        // console.log(film);
+        const fields = enrichFields.filter(field => urlEntitiesFilms[field]);
 
-            if (enrichFields == urlEntitiesFilms[`${enrichFields}`]) {
-                for (let i = 0; i <= responseDataValue.length; i++) {
-                    console.log(responseDataValue[i])
+        for (const field of fields) {
 
-                    axios.get(responseDataValue[i])
-                        .then((responseValueUrlApi) => {
-                            arrayResponse.push(responseValueUrlApi.data);
-                            console.log(arrayResponse)
-                        }).catch((err) => {
-                            console.log(err);
-                         });
-                    console.log(i)
+            const currentField = film[field];
+            const isAnArrayWithLinks = isArray(currentField)
+                && currentField.filter(val => val.indexOf(url) !== -1).length > 0;
 
+            const fullFields = [];
+
+            if (isAnArrayWithLinks) {
+
+                for (const url of currentField) {
+
+                    const responseField = await axios.get(url);
+
+                    if (responseField.status === 200) {
+                        const fullField = responseField.data;
+                        fullFields.push(fullField);
+                    }
                 }
-                
-                res.json(arrayResponse);
-            }
-        }).catch((erro) => {
-            console.log(erro)
-            res.send("ERRO 500");
-        })
-    });
 
+                film[field] = fullFields;
+            }
+
+        }
+        res.json(film)
+
+    } else {
+        res.status(404).send({ error: 'Filme não encontrado.' })
+    }
+})
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
-
