@@ -13,19 +13,21 @@ app.get('/:entyds/:id', async (req, res) => {
     const { entyds, id } = req.params;
     const enrichFields = req.query.enrichFields.split(",")
     const urlResquest = `${url}/${entyds}/${id}`;
-    const fullFields = [];
 
+    
     const filmResponse = await axios.get(urlResquest);
-
+    
     if (filmResponse.status === 200) {
         const film = filmResponse.data;
-
+        
         for (let field of enrichFields) {
-
+            
             const currentField = film[field];
+            
+            const fullFields = [];
 
             for (const url of currentField) {
-
+                
                 const responseField = await axios.get(url);
 
                 if (responseField.status === 200) {
