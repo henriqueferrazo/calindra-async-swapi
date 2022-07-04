@@ -22,18 +22,18 @@ const isArray = (fields) => {
 app.get('/:entyds/:id', async (req, res) => {
     const { entyds, id } = req.params;
     const enrichFields = isArray(req.query.enrichFields)
-                ?req.query.enrichFields : [req.query.enrichFields]
+                ?req.query.enrichFields : req.query.enrichFields.split(",")
     const urlResquest = `${url}/${entyds}/${id}`;
 
     const filmResponse = await axios.get(urlResquest);
-
+    console.log(enrichFields)
     if (filmResponse.status === 200) {
         const film = filmResponse.data;
-        // console.log(film);
-        const fields = enrichFields.filter(field => urlEntitiesFilms[field]);
-
-        for (const field of fields) {
-
+        console.log(film);
+        // const fields = enrichFields.filter(field => urlEntitiesFilms[field]);
+        // console.log(fields)
+        for(let field of enrichFields){
+            
             const currentField = film[field];
             const isAnArrayWithLinks = isArray(currentField)
                 && currentField.filter(val => val.indexOf(url) !== -1).length > 0;
