@@ -1,19 +1,9 @@
-const { default: axios } = require('axios');
-const bodyParser = require('body-parser')
+const axios = require('axios');
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3001;
+
 const url = "https://swapi.dev/api/"
-
-app.use(express.json());
-
-const urlEntitiesFilms = {
-    characters: "characters",
-    planets: "planets",
-    starships: "starships",
-    vehicles: "vehicles",
-    species: "species"
-}
 
 const isArray = (fields) => {
     return fields instanceof Array;
@@ -26,12 +16,10 @@ app.get('/:entyds/:id', async (req, res) => {
     const urlResquest = `${url}/${entyds}/${id}`;
 
     const filmResponse = await axios.get(urlResquest);
-    console.log(enrichFields)
+
     if (filmResponse.status === 200) {
         const film = filmResponse.data;
-        console.log(film);
-        // const fields = enrichFields.filter(field => urlEntitiesFilms[field]);
-        // console.log(fields)
+      
         for(let field of enrichFields){
             
             const currentField = film[field];
