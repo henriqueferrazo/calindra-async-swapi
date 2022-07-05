@@ -27,14 +27,18 @@ app.get('/:entyds/:id', async (req, res) => {
 
                 for (const url of currentField) {
 
-                    const responseField = await axios.get(url);
+                    const responseField = axios.get(url)
+                    .then(url => {
+                        if (url.status === 200) {
+                            const fullField = responseField.data;
+                            fullFields.push(fullField);
+                        }
+                    })                    
+                    Promise.all([responseField]).then(value => {
+                        fullFields = value[0] 
+                    })
 
-                    if (responseField.status === 200) {
-                        const fullField = responseField.data;
-                        fullFields.push(fullField);
-                    }
                 }
-
                 film[field] = fullFields;
 
             }
@@ -43,7 +47,7 @@ app.get('/:entyds/:id', async (req, res) => {
         } else {
             res.status(404).send({ error: 'Filme não encontrado.' })
         }
-    }else {
+    } else {
         res.json(film)
     }
 })
