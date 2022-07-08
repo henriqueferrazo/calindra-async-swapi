@@ -35,8 +35,8 @@ app.get('/:entyds/:id', async (req, res) => {
                 }
                 const promiseAll = await Promise.all(fullPromiseArray);
                 for(let urlRespondida of promiseAll) {
-                    let resposta = urlRespondida
-                    // console.log(resposta);
+                    let resposta = urlRespondida;
+                    console.log(resposta);
                     fullField.push(resposta);
                 }
                 entityParams[field] = fullField;
