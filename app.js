@@ -12,7 +12,7 @@ app.get('/:entyds/:id', async (req, res) => {
     const enrichFieldsParams = req.query.enrichFields;
 
     const filmResponse = await axios.get(urlResquest);
-    const film = filmResponse.data;
+    const entityParams = filmResponse.data;
 
     if (enrichFieldsParams !== undefined) {
 
@@ -21,34 +21,34 @@ app.get('/:entyds/:id', async (req, res) => {
         if (filmResponse.status === 200) {
             for (let field of enrichFields) {
 
-                const currentField = film[field];
+                const currentField = entityParams[field];
 
-                const fullFields = [];
+                const fullPromiseArray = [];
+                const fullField = [];
 
                 for (const url of currentField) {
 
-                    const responseField = axios.get(url)
-                    .then(url => {
-                        if (url.status === 200) {
-                            const fullField = responseField.data;
-                            fullFields.push(fullField);
-                        }
-                    })                    
-                    Promise.all([responseField]).then(value => {
-                        fullFields = value[0] 
-                    })
-
+                    const promise = axios.get(url)
+                    fullPromiseArray.push(promise);
+                    // console.log(fullPromiseArray)
+                    
                 }
-                film[field] = fullFields;
-
+                const promiseAll = await Promise.all(fullPromiseArray);
+                for(let urlRespondida of promiseAll) {
+                    let resposta = urlRespondida
+                    // console.log(resposta);
+                    fullField.push(resposta);
+                }
+                entityParams[field] = fullField;
+                console.log(entityParams)
             }
-            res.json(film)
+            res.json(entityParams)
 
         } else {
             res.status(404).send({ error: 'Filme não encontrado.' })
         }
     } else {
-        res.json(film)
+        res.json(entityParams)
     }
 })
 
